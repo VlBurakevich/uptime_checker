@@ -4,8 +4,13 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	RoleUser  = "user"
+	RoleAdmin = "admin"
+)
+
 type Role struct {
-	ID   uuid.UUID `gorm:"type:uuid;primaryKey"`
+	ID   uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
 	Name string    `gorm:"unique;not null"`
 }
 

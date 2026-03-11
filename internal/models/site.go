@@ -8,12 +8,12 @@ import (
 
 type Site struct {
 	Base
-	URL      string        `gorm:"not null" json:"url"`
-	Name     string        `json:"name"`
-	Interval time.Duration `gorm:"default:60s" json:"interval"`
-	IsActive bool          `gorm:"default:true" json:"is_active"`
-	UserId   uuid.UUID     `gorm:"type:uuid" json:"user_id"`
-	Checks   []SiteCheck   `gorm:"foreignKey:SiteID" json:"checks"`
+	URL      string      `gorm:"not null" json:"url"`
+	Name     string      `json:"name"`
+	Interval int         `gorm:"default:60" json:"interval"`
+	IsActive bool        `gorm:"default:true" json:"is_active"`
+	UserID   uuid.UUID   `gorm:"type:uuid" json:"user_id"`
+	Checks   []SiteCheck `gorm:"foreignKey:SiteID" json:"checks"`
 }
 
 type SiteCheck struct {
