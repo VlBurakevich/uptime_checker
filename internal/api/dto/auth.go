@@ -2,7 +2,7 @@ package dto
 
 import (
 	"time"
-	"uptime-checker/internal/models"
+	"uptime-checker/internal/api/models"
 
 	"github.com/google/uuid"
 )

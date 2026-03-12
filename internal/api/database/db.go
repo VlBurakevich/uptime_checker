@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
-	"uptime-checker/internal/models"
+	models2 "uptime-checker/internal/api/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,9 +16,9 @@ func InitDB(dsn string) (*gorm.DB, error) {
 	}
 
 	err = db.AutoMigrate(
-		&models.User{},
-		&models.Site{},
-		&models.Credential{},
+		&models2.User{},
+		&models2.Site{},
+		&models2.Credential{},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
@@ -33,11 +33,11 @@ func InitDB(dsn string) (*gorm.DB, error) {
 }
 
 func seedRoles(db *gorm.DB) error {
-	roles := []string{models.RoleUser, models.RoleAdmin}
+	roles := []string{models2.RoleUser, models2.RoleAdmin}
 
 	for _, roleName := range roles {
-		var role models.Role
-		err := db.Where(models.Role{Name: roleName}).FirstOrCreate(&role).Error
+		var role models2.Role
+		err := db.Where(models2.Role{Name: roleName}).FirstOrCreate(&role).Error
 		if err != nil {
 			return err
 		}

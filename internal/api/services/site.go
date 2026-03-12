@@ -2,8 +2,8 @@ package services
 
 import (
 	"errors"
-	"uptime-checker/internal/dto"
-	"uptime-checker/internal/models"
+	"uptime-checker/internal/api/dto"
+	"uptime-checker/internal/api/models"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

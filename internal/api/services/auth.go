@@ -4,9 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
-
-	"uptime-checker/internal/dto"
-	"uptime-checker/internal/models"
+	"uptime-checker/internal/api/dto"
+	"uptime-checker/internal/api/models"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"

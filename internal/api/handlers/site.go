@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"net/http"
-	"uptime-checker/internal/dto"
-	"uptime-checker/internal/services"
+	"uptime-checker/internal/api/dto"
+	"uptime-checker/internal/api/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
