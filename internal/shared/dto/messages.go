@@ -14,7 +14,7 @@ type SiteCheckTask struct {
 type SiteCheckResult struct {
 	SiteID     uuid.UUID `json:"site_id"`
 	StatusCode int       `json:"status_code"`
-	LatencyMS  int64     `json:"latency_ms"`
+	LatencyMs  int64     `json:"latency_ms"`
 	IsUp       bool      `json:"is_up"`
 	CheckedAt  time.Time `json:"checked_at"`
 	Error      string    `json:"error,omitempty"`

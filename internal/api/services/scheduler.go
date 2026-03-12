@@ -5,7 +5,7 @@ import (
 	"time"
 	"uptime-checker/internal/api/broker"
 	"uptime-checker/internal/api/models"
-	"uptime-checker/internal/dto"
+	"uptime-checker/internal/shared/dto"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

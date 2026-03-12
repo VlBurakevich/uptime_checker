@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"uptime-checker/internal/dto"
+	"uptime-checker/internal/shared/dto"
 
 	"github.com/segmentio/kafka-go"
 )

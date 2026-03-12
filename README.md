@@ -12,10 +12,6 @@ API: Центральный узел, который принимает отче
 Язык: Go (Golang)
 Сборка: Docker (Multi-stage builds, Alpine)
 Оркестрация: Docker Compose
-Взаимодействие: JSON по протоколу HTTP
+Взаимодействие: Kafka
 
-### Команды
 
-make run-api — запуск сервиса API.
-make run-watcher — запуск сервиса мониторинга.
-docker-compose up --build — развертывание всей инфраструктуры в контейнерах.

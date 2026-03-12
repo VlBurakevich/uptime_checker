@@ -3,7 +3,7 @@ package broker
 import (
 	"context"
 	"encoding/json"
-	"uptime-checker/internal/dto"
+	"uptime-checker/internal/shared/dto"
 
 	"github.com/segmentio/kafka-go"
 )
