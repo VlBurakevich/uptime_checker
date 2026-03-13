@@ -1,7 +1,7 @@
 package app
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"uptime-checker/internal/api"
 	"uptime-checker/internal/api/broker"
@@ -13,8 +13,7 @@ import (
 func New(cfg *config.Config) (*App, func(), error) {
 	db, err := database.InitDB(cfg.GetDSN())
 	if err != nil {
-		log.Fatal("DB init error: ", err)
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to init database: %w", err)
 	}
 
 	taskProducer := broker.NewTaskProducer(cfg.Kafka.KafkaBroker, cfg.Kafka.TopicTasks)

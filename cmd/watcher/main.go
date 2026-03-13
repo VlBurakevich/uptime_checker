@@ -26,5 +26,6 @@ func main() {
 	slog.Info("Watcher is running")
 	if err := application.Run(ctx); err != nil {
 		slog.Error("App crashed", "error", err)
+		os.Exit(1)
 	}
 }

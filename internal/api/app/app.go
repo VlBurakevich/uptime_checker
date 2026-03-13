@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 	"net/http"
 	"uptime-checker/internal/api/broker"
 	"uptime-checker/internal/api/config"
@@ -26,13 +26,13 @@ func (a *App) Run(ctx context.Context) error {
 
 	go func() {
 		if err := a.resultConsumer.Start(ctx, a.siteService.HandleCheckResult); err != nil {
-			log.Printf("Result consumer stopped with error: %v", err)
+			slog.Error("Result consumer stopped", "error", err)
 		}
 	}()
 
 	go func() {
 		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Printf("HTTP server error: %v", err)
+			slog.Error("HTTP server failed", "error", err)
 		}
 	}()
 

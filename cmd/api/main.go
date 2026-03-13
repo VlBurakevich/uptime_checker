@@ -23,10 +23,9 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	slog.Info("Service in starting")
+	slog.Info("App is running")
 	if err := application.Run(ctx); err != nil {
 		slog.Error("App crashed", "error", err)
 		os.Exit(1)
 	}
-
 }

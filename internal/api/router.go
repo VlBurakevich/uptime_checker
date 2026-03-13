@@ -29,6 +29,7 @@ func SetupRouter(db *gorm.DB, jwtSecret string) *gin.Engine {
 		api.GET("/me", authHandler.GetMe)
 		api.POST("/sites", siteHandler.Create)
 		api.PUT("/sites/:id", siteHandler.Update)
+		api.DELETE("/sites/:id", siteHandler.Delete)
 		api.GET("/sites", siteHandler.List)
 	}
 

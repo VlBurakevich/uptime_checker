@@ -3,7 +3,7 @@ package broker
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"uptime-checker/internal/shared/dto"
 
 	"github.com/segmentio/kafka-go"
@@ -30,17 +30,18 @@ func (c *ResultConsumer) Start(ctx context.Context, handler func(context.Context
 			if ctx.Err() != nil {
 				return nil
 			}
-			log.Printf("kafka riding error: %v", err)
+			slog.Error("kafka riding error", "error", err)
 			continue
 		}
 
 		var result dto.SiteCheckResult
 		if err := json.Unmarshal(m.Value, &result); err != nil {
-			log.Printf("deserialization error: %v", err)
+			slog.Error("deserialization error", "error", err)
+			continue
 		}
 
 		if err := handler(ctx, result); err != nil {
-			log.Printf("handler error: %v", err)
+			slog.Error("handler error", "error", err)
 		}
 	}
 }

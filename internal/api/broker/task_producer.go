@@ -3,6 +3,7 @@ package broker
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"uptime-checker/internal/shared/dto"
 
 	"github.com/segmentio/kafka-go"
@@ -25,13 +26,19 @@ func NewTaskProducer(addr, topic string) *TaskProducer {
 func (p *TaskProducer) PublishTask(ctx context.Context, task dto.SiteCheckTask) error {
 	payload, err := json.Marshal(task)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal result: %w", err)
 	}
 
-	return p.writer.WriteMessages(ctx, kafka.Message{
+	err = p.writer.WriteMessages(ctx, kafka.Message{
 		Key:   []byte(task.SiteID.String()),
 		Value: payload,
 	})
+
+	if err != nil {
+		return fmt.Errorf("failed to publish task: %w", err)
+	}
+
+	return nil
 }
 
 func (p *TaskProducer) Close() error {

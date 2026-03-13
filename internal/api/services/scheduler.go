@@ -49,11 +49,16 @@ func (s *Scheduler) process(ctx context.Context) {
 			Strength: "UPDATE",
 			Options:  "SKIP LOCKED",
 		}).
-			Where("is_active = ? AND next_checked_at <= NOW())", true).
+			Model(&models.Site{}).
+			Where("is_active = ? AND next_checked_at <= NOW()", true).
 			Limit(s.limit).
 			Pluck("id", &siteIDs).Error
 
-		if err != nil || len(sites) == 0 {
+		if err != nil || len(siteIDs) == 0 {
+			return err
+		}
+
+		if err := tx.Where("id IN ?", siteIDs).Find(&sites).Error; err != nil {
 			return err
 		}
 
@@ -61,7 +66,7 @@ func (s *Scheduler) process(ctx context.Context) {
 			Where("id IN ?", siteIDs).
 			Updates(map[string]interface{}{
 				"last_checked_at": gorm.Expr("NOW()"),
-				"next_checked_at": gorm.Expr("GREATEST(next_checked_at + (interval * interval '1 second'), NOW() + (interval * interval '1 second'))"),
+				"next_checked_at": gorm.Expr("GREATEST(next_checked_at + (interval_sec * '1 second'::interval), NOW() + (interval_sec * '1 second'::interval))"),
 			}).Error
 	})
 

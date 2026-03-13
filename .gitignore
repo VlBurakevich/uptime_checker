@@ -5,7 +5,8 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.env
+.env.api
+.env.watcher
 
 ### STS ###
 .apt_generated

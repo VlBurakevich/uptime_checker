@@ -7,14 +7,14 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app_bin ./cmd/watcher/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /watcher_bin ./cmd/watcher/main.go
 
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 
-COPY --from=builder /app_bin /api
+COPY --from=builder /watcher_bin /watcher
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD ["/watcher"]

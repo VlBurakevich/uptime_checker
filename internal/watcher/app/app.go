@@ -26,7 +26,7 @@ func (a *WatcherApp) Run(ctx context.Context) error {
 	return a.consumer.Start(ctx, a.handleTask)
 }
 
-func (a *WatcherApp) handleTask(ctx context.Context, task dto.SiteCheckTask) {
+func (a *WatcherApp) handleTask(ctx context.Context, task dto.SiteCheckTask) error { //todo add error
 	go func() {
 		result := a.pinger.Ping(ctx, task)
 
@@ -34,4 +34,5 @@ func (a *WatcherApp) handleTask(ctx context.Context, task dto.SiteCheckTask) {
 			log.Printf("Error publishing result for site %s: %v", task.SiteID, err)
 		}
 	}()
+	return nil
 }

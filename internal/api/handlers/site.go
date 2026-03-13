@@ -27,6 +27,27 @@ func (h *SiteHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, sites)
 }
 
+func (h *SiteHandler) Create(c *gin.Context) {
+	var req dto.CreateSiteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, ok := h.getUserID(c)
+	if !ok {
+		return
+	}
+
+	site, err := h.Service.CreateSite(req, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, site)
+}
+
 func (h *SiteHandler) Update(c *gin.Context) {
 	var req dto.UpdateSiteRequest
 
@@ -35,7 +56,7 @@ func (h *SiteHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if req.URL == nil && req.Name == nil && req.Interval == nil {
+	if req.URL == nil && req.Name == nil && req.IntervalSec == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "no fields to update"})
 		return
 	}
@@ -60,25 +81,25 @@ func (h *SiteHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, site)
 }
 
-func (h *SiteHandler) Create(c *gin.Context) {
-	var req dto.CreateSiteRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+func (h *SiteHandler) Delete(c *gin.Context) {
 	userID, ok := h.getUserID(c)
 	if !ok {
 		return
 	}
 
-	site, err := h.Service.CreateSite(req, userID)
+	siteID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid site id"})
+		return
+	}
+
+	err = h.Service.DeleteSite(siteID, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, site)
+	c.JSON(http.StatusNoContent, nil)
 }
 
 func (h *SiteHandler) getUserID(c *gin.Context) (uuid.UUID, bool) {

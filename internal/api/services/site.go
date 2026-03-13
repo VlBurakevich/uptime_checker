@@ -23,11 +23,11 @@ func (s *SiteService) GetUserSites(userId uuid.UUID) ([]models.Site, error) {
 
 func (s *SiteService) CreateSite(req apiDto.CreateSiteRequest, userId uuid.UUID) (*models.Site, error) {
 	site := models.Site{
-		URL:      req.URL,
-		Name:     req.Name,
-		Interval: req.Interval,
-		UserID:   userId,
-		IsActive: true,
+		URL:         req.URL,
+		Name:        req.Name,
+		IntervalSec: req.IntervalSec,
+		UserID:      userId,
+		IsActive:    true,
 	}
 
 	if err := s.DB.Create(&site).Error; err != nil {
@@ -48,8 +48,8 @@ func (s *SiteService) UpdateSite(siteID uuid.UUID, userID uuid.UUID, req apiDto.
 	if req.Name != nil {
 		site.Name = *req.Name
 	}
-	if req.Interval != nil {
-		site.Interval = *req.Interval
+	if req.IntervalSec != nil {
+		site.IntervalSec = *req.IntervalSec
 	}
 
 	if err := s.DB.Save(&site).Error; err != nil {
@@ -57,6 +57,20 @@ func (s *SiteService) UpdateSite(siteID uuid.UUID, userID uuid.UUID, req apiDto.
 	}
 
 	return &site, nil
+}
+
+func (s *SiteService) DeleteSite(siteID uuid.UUID, userID uuid.UUID) error {
+	result := s.DB.Where("id = ? AND user_id = ?", siteID, userID).Delete(&models.Site{})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("site not found or access denied")
+	}
+
+	return nil
 }
 
 func (s *SiteService) HandleCheckResult(ctx context.Context, res sharedDto.SiteCheckResult) error {

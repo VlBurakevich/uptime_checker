@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	models2 "uptime-checker/internal/api/models"
 
 	"gorm.io/driver/postgres"
@@ -17,8 +17,10 @@ func InitDB(dsn string) (*gorm.DB, error) {
 
 	err = db.AutoMigrate(
 		&models2.User{},
+		&models2.Role{},
 		&models2.Site{},
 		&models2.Credential{},
+		&models2.SiteCheck{},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
@@ -28,7 +30,7 @@ func InitDB(dsn string) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to seedRoles: %w", err)
 	}
 
-	log.Println("Successfully connected to database and migrated schemas")
+	slog.Info("Successfully connected to database and migrated schemas")
 	return db, nil
 }
 

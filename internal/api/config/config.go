@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/caarlos0/env/v11"
@@ -18,6 +18,7 @@ type Config struct {
 		User     string `env:"USER" envDefault:"postgres"`
 		Password string `env:"PASSWORD" envDefault:"root"`
 		Name     string `env:"NAME" envDefault:"uptime_db"`
+		SSLMode  string `env:"SSL_MODE" envDefault:"disable"`
 	} `envPrefix:"DB_"`
 
 	Kafka struct {
@@ -32,19 +33,20 @@ type Config struct {
 	} `envPrefix:"SCHEDULER_"`
 }
 
+func (c *Config) GetDSN() string {
+	return fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		c.DB.Host, c.DB.User, c.DB.Password, c.DB.Name, c.DB.Port, c.DB.SSLMode,
+	)
+}
+
 func Load() *Config {
 	cfg := &Config{}
 
 	if err := env.Parse(cfg); err != nil {
-		log.Fatalf("failed to parse config: %v", err)
+		slog.Error("failed to parse config", "error", err)
+		panic(err)
 	}
 
 	return cfg
-}
-
-func (c *Config) GetDSN() string {
-	return fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		c.DB.Host, c.DB.User, c.DB.Password, c.DB.Name, c.DB.Port,
-	)
 }

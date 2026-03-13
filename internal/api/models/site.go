@@ -10,7 +10,7 @@ type Site struct {
 	Base
 	URL           string      `gorm:"not null" json:"url"`
 	Name          string      `json:"name"`
-	Interval      int         `gorm:"default:60" json:"interval"`
+	IntervalSec   int         `gorm:"default:60" json:"interval_sec"`
 	LastCheckedAt time.Time   `gorm:"type:timestamptz" json:"last_checked_at"`
 	NextCheckedAt time.Time   `gorm:"index:idx_active_next;type:timestamptz" json:"next_checked_at"`
 	IsActive      bool        `gorm:"index:idx_active_next;default:true" json:"is_active"`
