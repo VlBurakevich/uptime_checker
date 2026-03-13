@@ -33,3 +33,7 @@ func (p *TaskProducer) PublishTask(ctx context.Context, task dto.SiteCheckTask) 
 		Value: payload,
 	})
 }
+
+func (p *TaskProducer) Close() error {
+	return p.writer.Close()
+}

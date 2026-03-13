@@ -1,9 +1,11 @@
 package services
 
 import (
+	"context"
 	"errors"
-	"uptime-checker/internal/api/dto"
+	apiDto "uptime-checker/internal/api/dto"
 	"uptime-checker/internal/api/models"
+	sharedDto "uptime-checker/internal/shared/dto"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -19,7 +21,7 @@ func (s *SiteService) GetUserSites(userId uuid.UUID) ([]models.Site, error) {
 	return sites, err
 }
 
-func (s *SiteService) CreateSite(req dto.CreateSiteRequest, userId uuid.UUID) (*models.Site, error) {
+func (s *SiteService) CreateSite(req apiDto.CreateSiteRequest, userId uuid.UUID) (*models.Site, error) {
 	site := models.Site{
 		URL:      req.URL,
 		Name:     req.Name,
@@ -34,7 +36,7 @@ func (s *SiteService) CreateSite(req dto.CreateSiteRequest, userId uuid.UUID) (*
 	return &site, nil
 }
 
-func (s *SiteService) UpdateSite(siteID uuid.UUID, userID uuid.UUID, req dto.UpdateSiteRequest) (*models.Site, error) {
+func (s *SiteService) UpdateSite(siteID uuid.UUID, userID uuid.UUID, req apiDto.UpdateSiteRequest) (*models.Site, error) {
 	var site models.Site
 	if err := s.DB.Where("id = ? AND user_id = ?", siteID, userID).First(&site).Error; err != nil {
 		return nil, errors.New("site not found or access denied")
@@ -55,4 +57,22 @@ func (s *SiteService) UpdateSite(siteID uuid.UUID, userID uuid.UUID, req dto.Upd
 	}
 
 	return &site, nil
+}
+
+func (s *SiteService) HandleCheckResult(ctx context.Context, res sharedDto.SiteCheckResult) error {
+	return s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		check := models.SiteCheck{
+			SiteID:     res.SiteID,
+			StatusCode: res.StatusCode,
+			LatencyMs:  res.LatencyMs,
+			IsUp:       res.IsUp,
+			CheckedAt:  res.CheckedAt,
+		}
+
+		if err := tx.Create(&check).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

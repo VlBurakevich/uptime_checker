@@ -21,7 +21,7 @@ type Config struct {
 	} `envPrefix:"DB_"`
 
 	Kafka struct {
-		KafkaBrokers string `env:"BROKER" envDefault:"localhost:9092"`
+		KafkaBroker  string `env:"BROKER" envDefault:"localhost:9092"`
 		TopicTasks   string `env:"TOPIC_TASKS" envDefault:"site.checks"`
 		TopicResults string `env:"TOPIC_RESULTS" envDefault:"check.results"`
 	} `envPrefix:"KAFKA_"`

@@ -44,24 +44,25 @@ func (s *Scheduler) process(ctx context.Context) {
 	var sites []models.Site
 
 	err := s.db.Transaction(func(tx *gorm.DB) error {
+		var siteIDs []uuid.UUID
 		err := tx.Clauses(clause.Locking{
 			Strength: "UPDATE",
 			Options:  "SKIP LOCKED",
 		}).
-			Where("is_active = ? AND (last_checked_at IS NULL OR last_checked_at + (interval * interval '1 second') <= NOW())", true).
+			Where("is_active = ? AND next_checked_at <= NOW())", true).
 			Limit(s.limit).
-			Find(&sites).Error
+			Pluck("id", &siteIDs).Error
 
 		if err != nil || len(sites) == 0 {
 			return err
 		}
 
-		siteIDs := make([]uuid.UUID, len(sites))
-		for i, site := range sites {
-			siteIDs[i] = site.ID
-		}
-
-		return tx.Model(&models.Site{}).Where("id IN ?", siteIDs).Update("last_checked_at", time.Now()).Error
+		return tx.Model(&models.Site{}).
+			Where("id IN ?", siteIDs).
+			Updates(map[string]interface{}{
+				"last_checked_at": gorm.Expr("NOW()"),
+				"next_checked_at": gorm.Expr("GREATEST(next_checked_at + (interval * interval '1 second'), NOW() + (interval * interval '1 second'))"),
+			}).Error
 	})
 
 	if err != nil || len(sites) == 0 {
