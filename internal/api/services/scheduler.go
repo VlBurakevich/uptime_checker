@@ -76,8 +76,9 @@ func (s *Scheduler) process(ctx context.Context) {
 
 	for _, site := range sites {
 		task := dto.SiteCheckTask{
-			SiteID: site.ID,
-			URL:    site.URL,
+			SiteID:    site.ID,
+			URL:       site.URL,
+			CreatedAt: time.Now(),
 		}
 		_ = s.producer.PublishTask(ctx, task)
 	}

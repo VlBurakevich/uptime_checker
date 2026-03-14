@@ -21,10 +21,12 @@ type Config struct {
 		Name     string `env:"NAME" envDefault:"uptime_db"`
 		SSLMode  string `env:"SSL_MODE" envDefault:"disable"`
 	} `envPrefix:"DB_"`
+
 	Kafka struct {
-		KafkaBroker  string `env:"BROKER" envDefault:"localhost:9092"`
-		TopicTasks   string `env:"TOPIC_TASKS" envDefault:"site.checks"`
-		TopicResults string `env:"TOPIC_RESULTS" envDefault:"check.results"`
+		Broker       string `env:"BROKER" envDefault:"localhost:9092"`
+		TopicTasks   string `env:"TOPIC_TASKS" envDefault:"site.checks.task"`
+		TopicResults string `env:"TOPIC_RESULTS" envDefault:"site.check.results"`
+		GroupId      string `env:"GROUP_ID" envDefault:"api-group"`
 	} `envPrefix:"KAFKA_"`
 
 	Scheduler struct {

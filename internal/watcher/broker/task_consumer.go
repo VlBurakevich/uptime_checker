@@ -4,22 +4,25 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
+	"time"
 	"uptime-checker/internal/shared/dto"
 
 	"github.com/segmentio/kafka-go"
 )
 
 type TaskConsumer struct {
-	reader *kafka.Reader
+	reader     *kafka.Reader
+	MaxTaskAge time.Duration
 }
 
-func NewTaskConsumer(addr, topic, groupID string) *TaskConsumer {
+func NewTaskConsumer(addr, topic, groupID string, maxTaskAge time.Duration) *TaskConsumer {
 	return &TaskConsumer{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: []string{addr},
 			Topic:   topic,
 			GroupID: groupID,
 		}),
+		MaxTaskAge: maxTaskAge,
 	}
 }
 
@@ -37,6 +40,14 @@ func (c *TaskConsumer) Start(ctx context.Context, handler func(context.Context, 
 		var task dto.SiteCheckTask
 		if err := json.Unmarshal(m.Value, &task); err != nil {
 			slog.Error("deserialization error", "error", err)
+			continue
+		}
+
+		if !task.CreatedAt.IsZero() && time.Since(task.CreatedAt) > c.MaxTaskAge {
+			slog.Warn("skipping state task",
+				"site_id", task.SiteID,
+				"age", time.Since(task.CreatedAt).Round(time.Second),
+			)
 			continue
 		}
 

@@ -14,7 +14,7 @@ type WatcherApp struct {
 	pinger   *checker.Pinger
 }
 
-func NewWatcherApp(cons *broker.TaskConsumer, prod *broker.ResultProducer, ping *checker.Pinger) *WatcherApp { //todo add goroutine count limit
+func NewWatcherApp(cons *broker.TaskConsumer, prod *broker.ResultProducer, ping *checker.Pinger) *WatcherApp {
 	return &WatcherApp{
 		consumer: cons,
 		producer: prod,

@@ -8,11 +8,19 @@ import (
 )
 
 type Config struct {
-	AppPort          string        `env:"APP_PORT" envDefault:"8080"`
-	KafkaBroker      string        `env:"KAFKA_BROKER" envDefault:"localhost:9092"`
-	TopicSiteTask    string        `env:"KAFKA_TOPIC_SITE_CHECK" envDefault:"site.check.task"`
-	TopicCheckResult string        `env:"KAFKA_TOPIC_CHECK_RESULT" envDefault:"site.check.result"`
-	HTTPTimeout      time.Duration `env:"HTTP_TIMEOUT" envDefault:"10s"`
+	AppPort string `env:"APP_PORT" envDefault:"8080"`
+
+	Kafka struct {
+		Broker       string `env:"BROKER" envDefault:"localhost:9092"`
+		TopicTasks   string `env:"TOPIC_TASKS" envDefault:"site.checks"`
+		TopicResults string `env:"TOPIC_RESULTS" envDefault:"check.results"`
+		GroupId      string `env:"GROUP_ID" envDefault:"api-group"`
+	} `envPrefix:"KAFKA_"`
+
+	Watcher struct {
+		HTTPTimeout time.Duration `env:"HTTP_TIMEOUT" envDefault:"10s"`
+		MaxTaskAge  time.Duration `env:"MAX_TASK_AGE" envDefault:"5m"`
+	}
 }
 
 func Load() *Config {

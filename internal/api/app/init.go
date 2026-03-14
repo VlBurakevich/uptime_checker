@@ -16,12 +16,12 @@ func New(cfg *config.Config) (*App, func(), error) {
 		return nil, nil, fmt.Errorf("failed to init database: %w", err)
 	}
 
-	taskProducer := broker.NewTaskProducer(cfg.Kafka.KafkaBroker, cfg.Kafka.TopicTasks)
+	taskProducer := broker.NewTaskProducer(cfg.Kafka.Broker, cfg.Kafka.TopicTasks)
 
 	siteService := &services.SiteService{DB: db}
 	scheduler := services.NewScheduler(db, taskProducer, cfg.Scheduler.Limit)
 
-	resultConsumer := broker.NewResultConsumer(cfg.Kafka.KafkaBroker, cfg.Kafka.TopicResults, "api-group")
+	resultConsumer := broker.NewResultConsumer(cfg.Kafka.Broker, cfg.Kafka.TopicResults, "api-group")
 
 	r := api.SetupRouter(db, cfg.JWTSecret, cfg.TokenTTL)
 

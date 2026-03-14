@@ -7,8 +7,9 @@ import (
 )
 
 type SiteCheckTask struct {
-	SiteID uuid.UUID `json:"site_id"`
-	URL    string    `json:"url"`
+	SiteID    uuid.UUID `json:"site_id"`
+	URL       string    `json:"url"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type SiteCheckResult struct {

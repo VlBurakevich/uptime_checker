@@ -7,9 +7,9 @@ import (
 )
 
 func New(cfg *config.Config) (*WatcherApp, func(), error) {
-	taskConsumer := broker.NewTaskConsumer(cfg.KafkaBroker, cfg.TopicSiteTask, "watcher-group")
-	resultProducer := broker.NewResultProducer(cfg.KafkaBroker, cfg.TopicCheckResult)
-	pinger := checker.NewPinger(cfg.HTTPTimeout)
+	taskConsumer := broker.NewTaskConsumer(cfg.Kafka.Broker, cfg.Kafka.TopicTasks, cfg.Kafka.GroupId, cfg.Watcher.MaxTaskAge)
+	resultProducer := broker.NewResultProducer(cfg.Kafka.Broker, cfg.Kafka.TopicResults)
+	pinger := checker.NewPinger(cfg.Watcher.HTTPTimeout)
 
 	application := NewWatcherApp(taskConsumer, resultProducer, pinger)
 
