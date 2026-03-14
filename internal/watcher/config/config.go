@@ -20,6 +20,9 @@ type Config struct {
 	Watcher struct {
 		HTTPTimeout time.Duration `env:"HTTP_TIMEOUT" envDefault:"10s"`
 		MaxTaskAge  time.Duration `env:"MAX_TASK_AGE" envDefault:"5m"`
+
+		MinConcurrency int32 `env:"MIN_CONCURRENCY" envDefault:"5"`
+		MaxConcurrency int32 `env:"MAX_CONCURRENCY" envDefault:"200"`
 	}
 }
 

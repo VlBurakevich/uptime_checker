@@ -3,6 +3,7 @@ package checker
 import (
 	"context"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 	"uptime-checker/internal/shared/dto"
@@ -44,11 +45,12 @@ func (p *Pinger) Ping(ctx context.Context, task dto.SiteCheckTask) dto.SiteCheck
 		return result
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
+		if err := Body.Close(); err != nil {
+			slog.Error("failed to close response body", "error", err)
 		}
 	}(resp.Body)
+
+	_, _ = io.Copy(io.Discard, resp.Body)
 
 	result.StatusCode = resp.StatusCode
 	result.IsUp = resp.StatusCode >= 200 && resp.StatusCode < 300
