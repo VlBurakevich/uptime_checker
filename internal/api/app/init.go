@@ -23,7 +23,7 @@ func New(cfg *config.Config) (*App, func(), error) {
 
 	resultConsumer := broker.NewResultConsumer(cfg.Kafka.KafkaBroker, cfg.Kafka.TopicResults, "api-group")
 
-	r := api.SetupRouter(db, cfg.JWTSecret)
+	r := api.SetupRouter(db, cfg.JWTSecret, cfg.TokenTTL)
 
 	application := &App{
 		cfg:            cfg,

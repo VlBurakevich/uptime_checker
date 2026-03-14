@@ -26,7 +26,7 @@ func (a *WatcherApp) Run(ctx context.Context) error {
 	return a.consumer.Start(ctx, a.handleTask)
 }
 
-func (a *WatcherApp) handleTask(ctx context.Context, task dto.SiteCheckTask) error { //todo add error
+func (a *WatcherApp) handleTask(ctx context.Context, task dto.SiteCheckTask) error {
 	go func() {
 		result := a.pinger.Ping(ctx, task)
 

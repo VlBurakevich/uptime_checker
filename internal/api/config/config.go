@@ -9,8 +9,9 @@ import (
 )
 
 type Config struct {
-	AppPort   string `env:"APP_PORT" envDefault:"8080"`
-	JWTSecret string `env:"JWT_SECRET" envDefault:"super-secret-secret"`
+	AppPort   string        `env:"APP_PORT" envDefault:"8080"`
+	JWTSecret string        `env:"JWT_SECRET" envDefault:"super-secret-secret"`
+	TokenTTL  time.Duration `env:"TOKEN_TTL" envDefault:"1h"`
 
 	DB struct {
 		Host     string `env:"HOST" envDefault:"localhost"`
@@ -20,7 +21,6 @@ type Config struct {
 		Name     string `env:"NAME" envDefault:"uptime_db"`
 		SSLMode  string `env:"SSL_MODE" envDefault:"disable"`
 	} `envPrefix:"DB_"`
-
 	Kafka struct {
 		KafkaBroker  string `env:"BROKER" envDefault:"localhost:9092"`
 		TopicTasks   string `env:"TOPIC_TASKS" envDefault:"site.checks"`

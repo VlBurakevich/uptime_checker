@@ -1,6 +1,7 @@
 package api
 
 import (
+	"time"
 	"uptime-checker/internal/api/handlers"
 	"uptime-checker/internal/api/middleware"
 	services2 "uptime-checker/internal/api/services"
@@ -9,10 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetupRouter(db *gorm.DB, jwtSecret string) *gin.Engine {
+func SetupRouter(db *gorm.DB, jwtSecret string, tokenTtl time.Duration) *gin.Engine {
 	r := gin.Default()
 
-	authService := &services2.AuthService{DB: db, JWTSecret: jwtSecret}
+	authService := &services2.AuthService{DB: db, JWTSecret: jwtSecret, TokenTTL: tokenTtl}
 	authHandler := &handlers.AuthHandler{Service: authService}
 	siteService := &services2.SiteService{DB: db}
 	siteHandler := &handlers.SiteHandler{Service: siteService}

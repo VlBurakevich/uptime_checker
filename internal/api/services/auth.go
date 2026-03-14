@@ -15,6 +15,7 @@ import (
 type AuthService struct {
 	DB        *gorm.DB
 	JWTSecret string
+	TokenTTL  time.Duration
 }
 
 func (s *AuthService) Register(req dto.RegisterRequest) (*models.User, string, error) {
@@ -85,7 +86,7 @@ func (s *AuthService) Login(req dto.LoginRequest) (*models.User, string, error) 
 func (s *AuthService) GenerateToken(user *models.User) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"exp": time.Now().Add(s.TokenTTL).Unix(),
 		"iat": time.Now().Unix(),
 	}
 
