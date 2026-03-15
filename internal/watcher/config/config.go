@@ -23,6 +23,14 @@ type Config struct {
 
 		MinConcurrency int32 `env:"MIN_CONCURRENCY" envDefault:"5"`
 		MaxConcurrency int32 `env:"MAX_CONCURRENCY" envDefault:"200"`
+
+		Monitor struct {
+			CpuLow    float64       `env:"CPU_LOW" envDefault:"50"`
+			CpuHigh   float64       `env:"CPU_HIGH" envDefault:"80"`
+			Increment int32         `env:"INCREMENT" envDefault:"5"`
+			Throttle  float64       `env:"THROTTLE" envDefault:"0.8"`
+			Interval  time.Duration `env:"INTERVAL" envDefault:"10s"`
+		} `envPrefix:"MONITOR_"`
 	}
 }
 

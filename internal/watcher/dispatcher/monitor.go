@@ -3,18 +3,46 @@ package dispatcher
 import (
 	"context"
 	"log/slog"
+	"sync/atomic"
 	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 )
 
-func (d *Dispatcher) RunAdaptiveMonitor(ctx context.Context) {
-	ticker := time.NewTicker(5 * time.Second)
+type AdaptiveMonitor struct {
+	dispatcher *Dispatcher
+
+	lowThreshold  float64
+	highThreshold float64
+	increment     int32
+	throttleRatio float64
+	interval      time.Duration
+}
+
+func NewAdaptiveMonitor(
+	d *Dispatcher,
+	low, high float64,
+	inc int32,
+	ratio float64,
+	interval time.Duration,
+) *AdaptiveMonitor {
+	return &AdaptiveMonitor{
+		dispatcher:    d,
+		lowThreshold:  low,
+		highThreshold: high,
+		increment:     inc,
+		throttleRatio: ratio,
+		interval:      interval,
+	}
+}
+
+func (am *AdaptiveMonitor) Run(ctx context.Context) {
+	ticker := time.NewTicker(am.interval)
 	defer ticker.Stop()
 
 	slog.Info("Adaptive monitor started",
-		"min", d.minLimit,
-		"max", d.maxLimit)
+		"min", am.dispatcher.minLimit,
+		"max", am.dispatcher.maxLimit)
 
 	for {
 		select {
@@ -27,25 +55,21 @@ func (d *Dispatcher) RunAdaptiveMonitor(ctx context.Context) {
 				slog.Error("Failed to get CPU usage", "error", err)
 			}
 
-			if len(percentages) == 0 {
-				continue
-			}
-
 			usage := percentages[0]
-			currentLimit := d.targetConcurrency
+			currentLimit := atomic.LoadInt32(&am.dispatcher.targetConcurrency)
 			var nextLimit int32
 
 			switch {
-			case usage < 50:
-				nextLimit = currentLimit + 5
+			case usage < am.lowThreshold:
+				nextLimit = currentLimit + am.increment
 				slog.Debug("increasing limit", "cpu", usage, "new_limit", nextLimit)
-			case usage > 80:
-				nextLimit = int32(float64(currentLimit) * 0.8)
+			case usage > am.highThreshold:
+				nextLimit = int32(float64(currentLimit) * am.throttleRatio)
 				slog.Warn("Cpu overload detected, throttling", "cpu", usage, "new_limit", nextLimit)
 			default:
 				continue
 			}
-			d.SetLimit(nextLimit)
+			am.dispatcher.SetLimit(nextLimit)
 		}
 	}
 }

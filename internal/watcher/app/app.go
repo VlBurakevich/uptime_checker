@@ -14,6 +14,7 @@ type WatcherApp struct {
 	producer   *broker.ResultProducer
 	pinger     *checker.Pinger
 	dispatcher *dispatcher.Dispatcher
+	monitor    *dispatcher.AdaptiveMonitor
 }
 
 func NewWatcherApp(
@@ -21,17 +22,19 @@ func NewWatcherApp(
 	prod *broker.ResultProducer,
 	ping *checker.Pinger,
 	disp *dispatcher.Dispatcher,
+	monitor *dispatcher.AdaptiveMonitor,
 ) *WatcherApp {
 	return &WatcherApp{
 		consumer:   cons,
 		producer:   prod,
 		pinger:     ping,
 		dispatcher: disp,
+		monitor:    monitor,
 	}
 }
 
 func (a *WatcherApp) Run(ctx context.Context) error {
-	go a.dispatcher.RunAdaptiveMonitor(ctx)
+	go a.monitor.Run(ctx)
 
 	return a.consumer.Start(ctx, a.handleTask)
 }
