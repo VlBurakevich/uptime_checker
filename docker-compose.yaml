@@ -40,13 +40,13 @@ services:
       POSTGRES_DB: uptime_db
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-    ports:
-      - "5432:5432"
+#    ports:
+#      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
       - back-network
-      - app-network
+#      - app-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root -d uptime_db"]
 

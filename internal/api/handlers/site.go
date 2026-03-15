@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"uptime-checker/internal/api/dto"
 	"uptime-checker/internal/api/services"
 
@@ -19,11 +20,15 @@ func (h *SiteHandler) List(c *gin.Context) {
 		return
 	}
 
-	sites, err := h.Service.GetUserSites(userID)
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	size, _ := strconv.Atoi(c.DefaultQuery("size", "10"))
+
+	sites, err := h.Service.GetUserSites(userID, page, size)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, sites)
 }
 

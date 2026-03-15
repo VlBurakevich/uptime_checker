@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"uptime-checker/internal/api/database"
 	apiDto "uptime-checker/internal/api/dto"
 	"uptime-checker/internal/api/models"
 	sharedDto "uptime-checker/internal/shared/dto"
@@ -15,10 +16,23 @@ type SiteService struct {
 	DB *gorm.DB
 }
 
-func (s *SiteService) GetUserSites(userId uuid.UUID) ([]models.Site, error) {
+func (s *SiteService) GetUserSites(userId uuid.UUID, page, size int) (*sharedDto.PagedResponse[[]models.Site], error) {
 	var sites []models.Site
-	err := s.DB.Where("user_id = ?", userId).Find(&sites).Error
-	return sites, err
+	var total int64
+
+	if err := s.DB.Model(&models.Site{}).Where("user_id = ?", userId).Count(&total).Error; err != nil {
+		return nil, err
+	}
+
+	err := s.DB.Where("user_id = ?", userId).
+		Scopes(database.Paginate(page, size)).
+		Find(&sites).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sharedDto.NewPagedResponse(sites, total, page, size), nil
 }
 
 func (s *SiteService) CreateSite(req apiDto.CreateSiteRequest, userId uuid.UUID) (*models.Site, error) {
