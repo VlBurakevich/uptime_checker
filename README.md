@@ -21,5 +21,25 @@ API: Центральный узел, который принимает отче
 
 ### Интересные фичи
 - Динамическое управление пулом горутин на основе runtime.NumCPU() и текущей нагрузки (CPU Load Average)
-- Nginx Load Balancer
-- Старался сделать возможность горизонтального масштабирования
+- Nginx как Load Balancer
+- Горизонтальное масштабирование сервисов
+
+### Архитектура
+
+Load Balancing: На входе стоит Nginx, который распределяет трафик между инстансами API.
+
+Network Isolation:
+- **app-network**: Публичный для Nginx и API.
+- **back-network**: Изолированный внутренний  для API, Watcher, Kafka и PostgreSQL. Прямой доступ извне к БД и брокеру закрыт.
+
+Event-Driven Flow: Взаимодействие через Kafka (брокер сообщений):
+- site.check.task — задачи от API к воркерам.
+- site.check.result — ответы от Watcher обратно в API.
+
+
+  ![img.png](assets/img.png)
+
+
+### Схема БД
+
+![img_1.png](assets/img_1.png)
