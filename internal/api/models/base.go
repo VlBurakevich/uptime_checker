@@ -13,9 +13,9 @@ type Identity struct {
 
 type Base struct {
 	Identity
-	CreatedAt time.Time      `gorm:"type:timestamptz" json:"created_at"`
-	UpdatedAt time.Time      `gorm:"type:timestamptz" json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index; type:timestamptz" json:"-"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 func (b *Identity) BeforeCreate(tx *gorm.DB) (err error) {
