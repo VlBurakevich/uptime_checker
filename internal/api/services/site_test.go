@@ -25,27 +25,6 @@ func setupTestSiteDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-func TestSiteService_CreateSite(t *testing.T) {
-	db := setupTestSiteDB(t)
-	svc := &SiteService{DB: db}
-
-	userID := uuid.New()
-	req := dto.CreateSiteRequest{
-		URL:         "https://example.com",
-		Name:        "Example",
-		IntervalSec: 60,
-	}
-
-	site, err := svc.CreateSite(req, userID)
-
-	require.NoError(t, err)
-	assert.NotEqual(t, uuid.Nil, site.ID)
-	assert.Equal(t, req.URL, site.URL)
-	assert.Equal(t, req.Name, site.Name)
-	assert.Equal(t, userID, site.UserID)
-	assert.True(t, site.IsActive)
-}
-
 func TestSiteService_GetUserSites(t *testing.T) {
 	db := setupTestSiteDB(t)
 	svc := &SiteService{DB: db}
@@ -68,6 +47,112 @@ func TestSiteService_GetUserSites(t *testing.T) {
 	assert.Equal(t, int64(15), result.TotalCount)
 	assert.Equal(t, 1, result.Page)
 	assert.Equal(t, 10, result.Size)
+}
+
+func TestSiteService_GetSiteByID(t *testing.T) {
+	db := setupTestSiteDB(t)
+	svc := &SiteService{DB: db}
+
+	userID := uuid.New()
+	site := models.Site{
+		URL:      "https://example.com",
+		Name:     "Example",
+		UserID:   userID,
+		IsActive: true,
+	}
+	db.Create(&site)
+
+	result, err := svc.GetUserSite(userID, site.ID)
+
+	require.NoError(t, err)
+	assert.Equal(t, site.ID, result.ID)
+	assert.Equal(t, "https://example.com", result.URL)
+}
+
+func TestSiteService_GetUserSite_NotFound(t *testing.T) {
+	db := setupTestSiteDB(t)
+	svc := &SiteService{DB: db}
+
+	_, err := svc.GetUserSite(uuid.New(), uuid.New())
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "not found")
+}
+
+func TestSiteService_GetUserSite_OtherUserSite(t *testing.T) {
+	db := setupTestSiteDB(t)
+	svc := &SiteService{DB: db}
+
+	userID := uuid.New()
+	site := models.Site{
+		URL:    "https://example.com",
+		Name:   "Example",
+		UserID: userID,
+	}
+	db.Create(&site)
+
+	_, err := svc.GetUserSite(site.ID, uuid.New())
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "not found")
+}
+
+func TestSiteService_GetUserSiteChecks(t *testing.T) {
+	db := setupTestSiteDB(t)
+	svc := &SiteService{DB: db}
+
+	userID := uuid.New()
+	site := models.Site{
+		URL:    "https://example.com",
+		Name:   "Example",
+		UserID: userID,
+	}
+	db.Create(&site)
+
+	for i := 0; i < 15; i++ {
+		db.Create(&models.SiteCheck{
+			SiteID:     site.ID,
+			StatusCode: 200,
+			IsUp:       true,
+			CheckedAt:  time.Now(),
+		})
+	}
+
+	result, err := svc.GetUserSiteChecks(userID, 1, 10)
+
+	require.NoError(t, err)
+	assert.Len(t, result.Data, 10)
+	assert.Equal(t, int64(15), result.TotalCount)
+}
+
+func TestSiteService_GetSiteChecks_NotFound(t *testing.T) {
+	db := setupTestSiteDB(t)
+	svc := &SiteService{DB: db}
+
+	_, err := svc.GetUserSiteChecks(uuid.New(), 0, 10)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "not found")
+}
+
+func TestSiteService_CreateSite(t *testing.T) {
+	db := setupTestSiteDB(t)
+	svc := &SiteService{DB: db}
+
+	userID := uuid.New()
+	req := dto.CreateSiteRequest{
+		URL:         "https://example.com",
+		Name:        "Example",
+		IntervalSec: 60,
+	}
+
+	site, err := svc.CreateSite(req, userID)
+
+	require.NoError(t, err)
+	assert.NotEqual(t, uuid.Nil, site.ID)
+	assert.Equal(t, req.URL, site.URL)
+	assert.Equal(t, req.Name, site.Name)
+	assert.Equal(t, userID, site.UserID)
+	assert.True(t, site.IsActive)
 }
 
 func TestSiteService_UpdateSite(t *testing.T) {

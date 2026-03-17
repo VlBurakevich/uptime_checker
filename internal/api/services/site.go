@@ -16,6 +16,15 @@ type SiteService struct {
 	DB *gorm.DB
 }
 
+func (s *SiteService) GetUserSite(userID uuid.UUID, siteID uuid.UUID) (*models.Site, error) {
+	site := &models.Site{}
+
+	if err := s.DB.Model(&models.Site{}).Where("id = ? AND user_id = ?", siteID, userID).First(site).Error; err != nil {
+		return nil, errors.New("site not found")
+	}
+	return site, nil
+}
+
 func (s *SiteService) GetUserSites(userId uuid.UUID, page, size int) (*sharedDto.PagedResponse[[]models.Site], error) {
 	var sites []models.Site
 	var total int64
@@ -33,6 +42,30 @@ func (s *SiteService) GetUserSites(userId uuid.UUID, page, size int) (*sharedDto
 	}
 
 	return sharedDto.NewPagedResponse(sites, total, page, size), nil
+}
+
+func (s *SiteService) GetUserSiteChecks(userID uuid.UUID, page int, size int) (*sharedDto.PagedResponse[[]models.SiteCheck], error) {
+	var site models.Site
+	if err := s.DB.Where("user_id = ?", userID).First(&site).Error; err != nil {
+		return nil, errors.New("site not found")
+	}
+
+	var siteChecks []models.SiteCheck
+	var total int64
+
+	if err := s.DB.Model(&models.SiteCheck{}).Where("site_id = ?", site.ID).Count(&total).Error; err != nil {
+		return nil, err
+	}
+
+	err := s.DB.Where("site_id", site.ID).
+		Scopes(database.Paginate(page, size)).
+		Find(&siteChecks).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sharedDto.NewPagedResponse(siteChecks, total, page, size), nil
 }
 
 func (s *SiteService) CreateSite(req apiDto.CreateSiteRequest, userId uuid.UUID) (*models.Site, error) {

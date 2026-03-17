@@ -14,7 +14,28 @@ type SiteHandler struct {
 	Service *services.SiteService
 }
 
-func (h *SiteHandler) List(c *gin.Context) {
+func (h *SiteHandler) GetSite(c *gin.Context) {
+	userID, ok := h.getUserID(c)
+	if !ok {
+		return
+	}
+
+	siteID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid site id"})
+		return
+	}
+
+	site, err := h.Service.GetUserSite(userID, siteID)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, site)
+}
+
+func (h *SiteHandler) GetSites(c *gin.Context) {
 	userID, ok := h.getUserID(c)
 	if !ok {
 		return
@@ -30,6 +51,24 @@ func (h *SiteHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, sites)
+}
+
+func (h *SiteHandler) GetSiteChecks(c *gin.Context) {
+	userID, ok := h.getUserID(c)
+	if !ok {
+		return
+	}
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	size, _ := strconv.Atoi(c.DefaultQuery("size", "10"))
+
+	siteChecks, err := h.Service.GetUserSiteChecks(userID, page, size)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, siteChecks)
 }
 
 func (h *SiteHandler) Create(c *gin.Context) {

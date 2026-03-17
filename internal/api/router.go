@@ -31,7 +31,9 @@ func SetupRouter(db *gorm.DB, jwtSecret string, tokenTtl time.Duration) *gin.Eng
 		api.POST("/sites", siteHandler.Create)
 		api.PUT("/sites/:id", siteHandler.Update)
 		api.DELETE("/sites/:id", siteHandler.Delete)
-		api.GET("/sites", siteHandler.List)
+		api.GET("/sites", siteHandler.GetSites)
+		api.GET("/sites/:id", siteHandler.GetSite)
+		api.GET("/sites/:id/checks", siteHandler.GetSiteChecks)
 	}
 
 	return r
