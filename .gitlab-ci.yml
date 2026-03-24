@@ -4,6 +4,8 @@ stages:
 deploy_job:
   stage: deploy
   image: docker:latest
+  variables:
+      DOCKER_HOST: unix:///var/run/docker.sock
   script:
     - echo "$ENV_API" > .env.api
     - echo "$ENV_WATCHER" > .env.watcher
