@@ -3,6 +3,9 @@ stages:
 
 deploy_job:
   stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
   script:
     - echo "$ENV_API" > .env.api
     - echo "$ENV_WATCHER" > .env.watcher
