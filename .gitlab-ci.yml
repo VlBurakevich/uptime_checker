@@ -1,0 +1,14 @@
+stages:
+  - deploy
+
+deploy_job:
+  stage: deploy
+  script:
+    - echo "$ENV_API" > .env.api
+    - echo "$ENV_WATCHER" > .env.watcher
+
+    - dokcer compose up -d --build --remove-orphans
+
+    - dokcer compose ps
+  only:
+    - master
