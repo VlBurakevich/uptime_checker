@@ -93,6 +93,7 @@ services:
       kafka:
         condition: service_healthy
     networks:
+      - app-network
       - back-network
     deploy:
       replicas: 3

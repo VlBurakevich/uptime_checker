@@ -26,24 +26,34 @@ func (p *Pinger) Ping(ctx context.Context, task dto.SiteCheckTask) dto.SiteCheck
 
 	req, err := http.NewRequestWithContext(ctx, "GET", task.URL, nil)
 
+	if err != nil {
+		return dto.SiteCheckResult{
+			SiteID:    task.SiteID,
+			CheckedAt: time.Now(),
+			IsUp:      false,
+			Error:     "failed to create request: " + err.Error(),
+		}
+	}
+
+	req.Header.Set("User-Agent", "UptimeWatcher/1.0 (University Project; Vlad's Bot)")
+
+	resp, err := p.client.Do(req)
+
+	latency := time.Since(start).Milliseconds()
+
 	result := dto.SiteCheckResult{
 		SiteID:    task.SiteID,
 		CheckedAt: start,
+		LatencyMs: latency,
 	}
-	if err != nil {
-		result.IsUp = false
-		result.Error = err.Error()
-		return result
-	}
-
-	resp, err := p.client.Do(req)
-	result.LatencyMs = time.Since(start).Milliseconds()
 
 	if err != nil {
 		result.IsUp = false
 		result.Error = err.Error()
+		result.StatusCode = -1
 		return result
 	}
+
 	defer func(Body io.ReadCloser) {
 		if err := Body.Close(); err != nil {
 			slog.Error("failed to close response body", "error", err)
