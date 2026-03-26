@@ -1,5 +1,15 @@
 stages:
+  - test
   - deploy
+
+test_job:
+  stage: test
+  image: golang:1.26-alpine
+  script:
+    - go test -v -race ./...
+  only:
+    - master
+    - merge_requests
 
 deploy_job:
   stage: deploy
