@@ -6,7 +6,8 @@ test_job:
   stage: test
   image: golang:1.26-alpine
   script:
-    - go test -v -race ./...
+    - apk add --no-cache build-base
+    - CGO_ENABLED=1 go test -v ./...
   only:
     - master
     - merge_requests
